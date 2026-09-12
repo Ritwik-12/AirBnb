@@ -1,0 +1,78 @@
+package com.hotel.airBnbApp.airBnbApp.service;
+
+import com.hotel.airBnbApp.airBnbApp.dto.RoomDto;
+import com.hotel.airBnbApp.airBnbApp.entity.Hotel;
+import com.hotel.airBnbApp.airBnbApp.entity.Room;
+import com.hotel.airBnbApp.airBnbApp.exception.ResourceNotFoundException;
+import com.hotel.airBnbApp.airBnbApp.repository.HotelRepository;
+import com.hotel.airBnbApp.airBnbApp.repository.RoomRepository;
+
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class RoomServiceImpl implements RoomService {
+
+    private final RoomRepository roomRepository;
+    private final HotelRepository hotelRepository;
+    private final InventoryService inventoryService;
+    private final ModelMapper modelMapper;
+
+    @Override
+    public RoomDto createNewRoom(Long hotelId, RoomDto roomDto) {
+
+        log.info("creating a new room in hotel {}" + hotelId);
+        Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel is not found with the id {} " + hotelId));
+
+        Room room = modelMapper.map(roomDto, Room.class);
+        room.setHotel(hotel);
+        room = roomRepository.save(room);
+        // TODO: Create inventory as soon as room is created and hotel is active
+        if (hotel.isActive()) {
+            inventoryService.initalizeRoomForAYear(room);
+        }
+        return modelMapper.map(room, RoomDto.class);
+    }
+
+    @Override
+    public List<RoomDto> getAllRoomsInHotel(Long hotelId) {
+        log.info("Getting all the rooms in hotle {} " + hotelId);
+        Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel with the id is not present {} " + hotelId));
+
+        return hotel.getRooms()
+                .stream()
+                .map((room) -> modelMapper.map(room, RoomDto.class))
+                .toList();
+    }
+
+    @Override
+    public RoomDto getRoomById(Long roomId) {
+        log.info("Getting the room with id {} " + roomId);
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room with the id not found {} " + roomId));
+        return modelMapper.map(room, RoomDto.class);
+    }
+
+    @Transactional
+    @Override
+    public void deleteRoomById(Long roomId) {
+
+        log.info("Delete the room with id {} " + roomId);
+        Room room = roomRepository.findById(roomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Room with the id not found {} " + roomId));
+
+        // TODO: delete all future inventory for this room-done
+        inventoryService.deleteAllInventories(room);
+        roomRepository.deleteById(roomId);
+
+    }
+}
