@@ -1,6 +1,8 @@
 package com.hotel.airBnbApp.airBnbApp.service;
 
 import com.hotel.airBnbApp.airBnbApp.dto.HotelDto;
+import com.hotel.airBnbApp.airBnbApp.dto.HotelInfoDto;
+import com.hotel.airBnbApp.airBnbApp.dto.RoomDto;
 import com.hotel.airBnbApp.airBnbApp.entity.Hotel;
 import com.hotel.airBnbApp.airBnbApp.entity.Room;
 import com.hotel.airBnbApp.airBnbApp.exception.ResourceNotFoundException;
@@ -100,5 +102,18 @@ public class HotelServiceImpl implements HotelService {
         for (Room room : hotel.getRooms()) {
             inventoryService.initalizeRoomForAYear(room);
         }
+    }
+
+    @Override
+    public HotelInfoDto getHotelInfoById(Long hotelId) {
+        Hotel hotel = hotelRepository.findById(hotelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel with the id not present " + hotelId));
+
+        List<RoomDto> rooms=hotel.getRooms()
+                .stream()
+                .map((element)->modelMapper.map(element, RoomDto.class))
+                .toList();
+        return new HotelInfoDto(modelMapper.map(hotel,HotelDto.class),rooms);
+
     }
 }

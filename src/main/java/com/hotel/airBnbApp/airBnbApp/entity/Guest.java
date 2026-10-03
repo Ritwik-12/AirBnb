@@ -3,7 +3,9 @@ package com.hotel.airBnbApp.airBnbApp.entity;
 
 import com.hotel.airBnbApp.airBnbApp.entity.enums.Gender;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -12,6 +14,8 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Guest {
 
     @Id

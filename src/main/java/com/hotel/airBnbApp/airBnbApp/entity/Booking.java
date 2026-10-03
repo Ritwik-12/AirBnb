@@ -1,14 +1,13 @@
 package com.hotel.airBnbApp.airBnbApp.entity;
 
 
+import com.hotel.airBnbApp.airBnbApp.entity.enums.BookingStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -16,6 +15,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Booking {
@@ -27,7 +27,7 @@ public class Booking {
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="hotel_id",nullable=false)
-    private Hotel hotle;
+    private Hotel hotel;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(nullable=false,name="room_id")
@@ -41,12 +41,10 @@ public class Booking {
     @Column(nullable = false)
     private Integer roomsCount;
 
-    @OneToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name="payment_id")
-    private Payment payment;
+
 
     @CreationTimestamp
-    private LocalDateTime creatdAt;
+    private LocalDateTime createdAt;
 
 
     @UpdateTimestamp
@@ -74,5 +72,8 @@ public class Booking {
 
     )
     private Set<Guest> guests;
+
+    @Column(nullable = false,precision = 10,scale = 2)
+    private BigDecimal amount;
 
 }

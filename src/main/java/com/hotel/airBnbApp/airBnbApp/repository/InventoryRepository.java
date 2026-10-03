@@ -5,11 +5,14 @@ import com.hotel.airBnbApp.airBnbApp.entity.Inventory;
 import com.hotel.airBnbApp.airBnbApp.entity.Room;
 
 import java.time.LocalDate;
+import java.util.List;
 
+import jakarta.persistence.LockModeType;
 import org.springframework.boot.data.autoconfigure.web.DataWebProperties.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -25,7 +28,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             WHERE i.city= :city
             AND i.date BETWEEN :startDate AND :endDate
             AND i.closed=false
-            AND (i.totalCount - i.bookedCount) >= :roomsCount
+            AND (i.totalCount - i.bookedCount - i.reservedCount) >= :roomsCount
             GROUP BY i.hotel, i.room
             HAVING COUNT(i.date) =:dateCount
             """)
@@ -37,6 +40,26 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             @Param("roomsCount") Integer roomsCount,
             @Param("dateCount") Long dateCount,
             PageRequest pageable
+
+    );
+    //putting an pesimistic lock on all rows in these days
+    @Query(
+            """
+             SELECT i
+             FROM Inventory i
+             WHERE i.room.id= :roomId
+                  AND i.date BETWEEN :startDate AND :endDate
+            AND i.closed=false
+            AND (i.totalCount - i.bookedCount - i.reservedCount) >= :roomsCount"""
+    )
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    List<Inventory> findAndLockAvailableInventory(
+
+            @Param("roomId") Long roomId,
+            @Param("startDate") LocalDate startDate,
+              @Param("endDate") LocalDate endDate,
+              @Param("roomsCount") Integer roomsCount
+
 
     );
 

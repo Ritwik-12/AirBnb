@@ -1,8 +1,12 @@
-package com.hotel.airBnbApp.airBnbApp.entity;
+package com.hotel.airBnbApp.airBnbApp.entity.enums;
 
 public enum BookingStatus {
 
-     PENDING,
+     RESERVED,
+     GUEST_ADDED,
+     PAYMENTS_PENDING,
+     CONFIRMED,
      CANCELLED,
-     ACCEPTED
+     EXPIRED
+
 }

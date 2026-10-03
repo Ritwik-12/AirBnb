@@ -6,7 +6,6 @@ import java.time.temporal.ChronoUnit;
 
 import com.hotel.airBnbApp.airBnbApp.entity.Hotel;
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.data.autoconfigure.web.DataWebProperties.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -54,12 +53,19 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public void deleteAllInventories(Room room) {
 
+        log.info("Deleting the inventories of room id: {}",room.getId());
         inventoryRepository.deleteByRoom(room);
     }
 
     @Override
   public Page<HotelDto> searchHotels(HotelSearchRequest hotelSearchRequest) {
         // create a pagable object
+
+        log.info("Searching hotel for {} city, form {} to{}",hotelSearchRequest.getCity(),
+                hotelSearchRequest.getStartDate(),
+                hotelSearchRequest.getEndDate()
+        );
+
         PageRequest pageable = PageRequest.of(hotelSearchRequest.getPage(), hotelSearchRequest.getSize());
         Long dateCount = ChronoUnit.DAYS.between(hotelSearchRequest.getStartDate(),
                 hotelSearchRequest.getEndDate()) + 1;
