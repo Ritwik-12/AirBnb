@@ -42,7 +42,7 @@ public class Inventory {
     private Integer bookedCount;
 
     @Column(nullable = false, columnDefinition = "INTEGER DEFAULT 0")
-    private Integer reservedCount;
+    private int reservedCount;
 
     @Column(nullable = false)
     private Integer totalCount;
